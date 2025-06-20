@@ -1,9 +1,9 @@
 {
   "name": "css-fast-establish",
   "displayName": "前端百宝箱",
-  "description": "希望打造一个前端开发的辅助工具，帮助前端开发人员提高效率，减少重复工作，提升开发质量。",
-  "version": "1.0.3",
-  "publisher": "wangwang9698",
+  "description": "前端开发辅助工具，帮助前端开发人员提高效率，减少重复工作，提升开发质量。快速生成css结构，查看样式，定位样式~后续迭代中会添加更多功能~",
+  "version": "1.0.4",
+  "publisher": "NanhaiAndy",
   "engines": {
     "vscode": "^1.30.0"
   },

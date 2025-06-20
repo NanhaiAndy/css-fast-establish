@@ -4,6 +4,10 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/) 规范，
 版本号采用 [语义化版本](https://semver.org/lang/zh-CN/) 标准。
 
+## [1.0.4] - 2025-06-20
+### 新增
+- 描述说明更新
+
 ## [1.0.3] - 2025-06-19
 ### 新增
 - 插件改名为前端百宝箱
