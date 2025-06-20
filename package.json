@@ -1,0 +1,113 @@
+{
+  "name": "css-fast-establish",
+  "displayName": "猪八戒前端百宝箱",
+  "description": "希望打造一个前端开发的辅助工具，帮助前端开发人员提高效率，减少重复工作，提升开发质量。",
+  "version": "1.0.3",
+  "publisher": "sachinb94",
+  "engines": {
+    "vscode": "^1.30.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "establish",
+    "CSS fast",
+    "HTML",
+    "JSX"
+  ],
+  "activationEvents": [
+    "onCommand:extension.generateCssTree",
+    "onCommand:extension.generateCssTreeNewlyOpened",
+    "onLanguage:html",
+    "onLanguage:vue",
+    "onLanguage:css",
+    "onLanguage:less",
+    "onLanguage:scss"
+  ],
+  "main": "./out/extension.js",
+  "icon": "./assets/zbjbbxfb.png",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.generateCssTree",
+        "title": "快速生成css结构(新开窗口)"
+      },
+      {
+        "command": "extension.generateCssTreeNewlyOpened",
+        "title": "快速生成css结构(当前页面)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "extension.generateCssTree",
+          "group": "navigation",
+          "when": "editorLangId == js || editorLangId == vue || editorLangId == html || editorLangId == javascript || editorLangId == javascriptreact"
+        },
+        {
+          "command": "extension.generateCssTreeNewlyOpened",
+          "group": "navigation",
+          "when": "editorLangId == js || editorLangId == vue || editorLangId == html || editorLangId == javascript || editorLangId == javascriptreact"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "css",
+        "aliases": ["CSS", "css"],
+        "extensions": [".css"]
+      },
+      {
+        "id": "less",
+        "aliases": ["LESS", "less"],
+        "extensions": [".less"]
+      },
+      {
+        "id": "scss",
+        "aliases": ["SCSS", "scss"],
+        "extensions": [".scss"]
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "生成CSS Fast establish配置",
+      "properties": {
+        "generateCssTree.cssFlavor": {
+          "type": "string",
+          "default": "sass",
+          "description": "CSS flavor",
+          "enum": ["css", "less", "scss"]
+        },
+        "generateCssTree.enableHover": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用CSS类的悬停预览"
+        },
+        "generateCssTree.enableGoToDefinition": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用CSS类的“转到定义”"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "yarn run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^3.3.1",
+    "vscode": "^1.1.28",
+    "tslint": "^5.12.1",
+    "@types/node": "^8.10.25",
+    "@types/mocha": "^2.2.42"
+  },
+  "dependencies": {
+    "document-tree": "^1.0.1"
+  },
+  "license": "MIT"
+}
