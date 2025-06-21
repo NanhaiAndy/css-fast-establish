@@ -122,6 +122,28 @@ export function activate(context: vscode.ExtensionContext) {
       }
     })
   );
+
+  // 注册值定义提供器（用于点击跳转到赋值位置）
+context.subscriptions.push(
+  vscode.languages.registerDefinitionProvider(['html', 'vue', 'javascript', 'typescript'], {
+    async provideDefinition(document, position, token) {
+      // 获取光标位置的文本范围
+      const range = document.getWordRangeAtPosition(position);
+      if (!range) return null;
+      
+      // 获取当前单词（可能是变量名或属性值）
+      const word = document.getText(range);
+      // 判断这个word拿到的是一个不存在中文和数字的字符串
+      if (/[\u4e00-\u9fa5]/.test(word)) return null;
+      // 同时判断word里面字符串不包含前端这些标签比如div span 名称，避免消耗去找标签
+      if (/^(<div>|<span>|<p>|<h1>|<h2>|<h3>|<h4>|<h5>|<h6>|<a>|<img>|<button>|<input>|<textarea>|<form>|<table>|<tr>|<td>|<th>|<ul>|<ol>|<li>|<dl>|<dt>|<dd>|<blockquote>|<pre>|<code>|<em>|<strong>)$/.test(word)) return null;
+      
+      // 尝试在整个工作空间搜索这个值的定义
+      const locations = await examinecss.findValueDefinition(word, document);
+      return locations.length > 0 ? locations : null;
+    }
+  })
+);
 }
 
 export function deactivate() {}

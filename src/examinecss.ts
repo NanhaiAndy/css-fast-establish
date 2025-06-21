@@ -65,7 +65,40 @@ const findDefinitionForClass = function(document: vscode.TextDocument, className
   );
 }
 
+// 全局搜索对应赋值的变量
+const findValueDefinition = async function(value: string, currentDocument: vscode.TextDocument): Promise<vscode.Location[]> {
+  const locations: vscode.Location[] = [];
+  
+  // 搜索当前文件
+  const currentDocText = currentDocument.getText();
+  const regex = new RegExp(`\\b${value}\\b\\s*[=:]`, 'g');
+  let match;
+  
+  while ((match = regex.exec(currentDocText)) !== null) {
+    const pos = currentDocument.positionAt(match.index);
+    locations.push(new vscode.Location(currentDocument.uri, pos));
+  }
+  
+  // 搜索整个工作空间（目前有点问题，同时会导致搜索速度变慢卡顿，还是先实现当前页面查找赋值吧）
+  // const workspaceFiles = await vscode.workspace.findFiles('**/*.{js,ts,vue,html}');
+  // for (const file of workspaceFiles) {
+  //   if (file.fsPath === currentDocument.uri.fsPath) continue; // 跳过当前文件
+    
+  //   const doc = await vscode.workspace.openTextDocument(file);
+  //   const text = doc.getText();
+  //   let match;
+    
+  //   while ((match = regex.exec(text)) !== null) {
+  //     const pos = doc.positionAt(match.index);
+  //     locations.push(new vscode.Location(file, pos));
+  //   }
+  // }
+  
+  return locations;
+}
+
 export default {
+  findValueDefinition,
   getHoveredClassName,
   findCssContentForClass,
   findDefinitionForClass
