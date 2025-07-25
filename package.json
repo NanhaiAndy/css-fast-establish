@@ -2,7 +2,7 @@
   "name": "css-fast-establish",
   "displayName": "前端百宝箱",
   "description": "前端开发辅助工具，帮助前端开发人员提高效率，减少重复工作，提升开发质量。",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "publisher": "NanhaiAndy",
   "engines": {
     "vscode": "^1.30.0"
@@ -13,6 +13,13 @@
   "keywords": [
     "establish",
     "CSS fast",
+    "前端",
+    "百宝箱",
+    "工具",
+    "前端百宝箱",
+    "前端工具",
+    "前端辅助",
+    "辅助",
     "HTML",
     "JSX"
   ],

@@ -131,6 +131,10 @@ context.subscriptions.push(
       const range = document.getWordRangeAtPosition(position);
       if (!range) return null;
       
+      // 获取当前这行全部文本
+      const lineText = document.lineAt(position.line).text;
+      // lineText里面是否包含/components或者@/components
+      if (lineText.includes('/components') || lineText.includes('@/components')) return null;
       // 获取当前单词（可能是变量名或属性值）
       const word = document.getText(range);
       // 判断这个word拿到的是一个不存在中文和数字的字符串
