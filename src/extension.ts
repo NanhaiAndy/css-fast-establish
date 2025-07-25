@@ -93,6 +93,33 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(disposableXk);
 
+  // 生成mock数据
+  const disposableMock = vscode.commands.registerCommand('extension.generateMockData', async () => {
+    // 弹出一个输入框
+    const textContent = await vscode.window.showInputBox({
+      placeHolder: '请填入在接口文档复制的接口结构'
+    });
+
+    if (!textContent) {
+      return;
+    }
+
+    // 弹出二个输入框
+    const quantity = await vscode.window.showInputBox({
+      placeHolder: '请填入需要生成多少条数据(一条是对象，多条是数组)'
+    });
+
+    if (!quantity) {
+      return;
+    }
+
+    const quantityg = parseInt(quantity);
+
+    examinecss.generateMockData(textContent, quantityg)
+  });
+
+  context.subscriptions.push(disposableMock);
+
   // 监听鼠标移入class名称展示该class样式结构并可以跳转
   const hoverData = vscode.languages.registerHoverProvider(['html', 'vue'], {
     provideHover(document, position, token) {

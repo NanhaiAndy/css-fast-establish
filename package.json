@@ -2,7 +2,7 @@
   "name": "css-fast-establish",
   "displayName": "前端百宝箱",
   "description": "前端开发辅助工具，帮助前端开发人员提高效率，减少重复工作，提升开发质量。",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "publisher": "NanhaiAndy",
   "engines": {
     "vscode": "^1.30.0"
@@ -13,6 +13,7 @@
   "keywords": [
     "establish",
     "CSS fast",
+    "mock",
     "前端",
     "百宝箱",
     "工具",
@@ -26,6 +27,7 @@
   "activationEvents": [
     "onCommand:extension.generateCssTree",
     "onCommand:extension.generateCssTreeNewlyOpened",
+    "onCommand:extension.generateMockData",
     "onLanguage:html",
     "onLanguage:vue",
     "onLanguage:css",
@@ -43,6 +45,10 @@
       {
         "command": "extension.generateCssTreeNewlyOpened",
         "title": "快速生成css结构(当前页面)"
+      },
+      {
+        "command": "extension.generateMockData",
+        "title": "根据接口文档格式生成Mock数据（多层级暂不支持）"
       }
     ],
     "menus": {
@@ -56,6 +62,11 @@
           "command": "extension.generateCssTreeNewlyOpened",
           "group": "navigation",
           "when": "editorLangId == js || editorLangId == vue || editorLangId == html || editorLangId == javascript || editorLangId == javascriptreact"
+        },
+        {
+          "command": "extension.generateMockData",
+          "group": "navigation",
+          "when": "editorLangId == js || editorLangId == vue || editorLangId == javascript || editorLangId == javascriptreact"
         }
       ]
     },
