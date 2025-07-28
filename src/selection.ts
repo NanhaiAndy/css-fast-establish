@@ -25,6 +25,15 @@ const getText = function(): string | null {
   return selectedText;
 };
 
+const removeVIfElements = function(htmlString: string): string {
+  let result = htmlString; 
+  
+  result = result.replace(/<template[^>]*>([\s\S]*?)<\/template>/g, '$1');
+  
+  return result;
+};
+
 export default {
-  getText
+  getText,
+  removeVIfElements
 };

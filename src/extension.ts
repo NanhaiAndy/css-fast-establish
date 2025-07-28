@@ -23,7 +23,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     const isCss = userConfig.cssFlavor.toLowerCase() === 'css';
 
-    const tree = documentTree.generate(selectedText);
+    const removeVIfElements = selection.removeVIfElements(selectedText);
+
+    const tree = documentTree.generate(removeVIfElements);
     const cssTree = generateCssTree(tree, { isCss });
 
     // 如果没有找到<style>标签，保持原有逻辑
@@ -53,7 +55,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     const isCss = userConfig.cssFlavor.toLowerCase() === 'css';
 
-    const tree = documentTree.generate(selectedTextx);
+    const removeVIfElements = selection.removeVIfElements(selectedTextx);
+
+    const tree = documentTree.generate(removeVIfElements);
     const cssTree = generateCssTree(tree, { isCss });
 
     // 检查当前文件是否包含<style lang="less" scoped>
