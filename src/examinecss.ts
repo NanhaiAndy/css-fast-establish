@@ -179,7 +179,7 @@ const generateMockData = function(textContent: String, quantityg: number) {
 
   const structureList = [];
   for (let i = 0; i < lines.length; i += 3) {
-    const fieldName = lines[i].trim();
+    let fieldName = lines[i].trim();
     const gb = i+1
     if (gb === lines.length) {
       break;
@@ -190,6 +190,8 @@ const generateMockData = function(textContent: String, quantityg: number) {
     const required = lines[i+2].trim();
     // 根据字段类型和描述设置默认值
     if (fieldName && fieldType) {
+      // 去掉fieldName里面的└─
+      fieldName = fieldName.replace(/└─/g, '');
       structureList.push({
         fieldName,
         fieldType,
@@ -253,7 +255,182 @@ const generateMockData = function(textContent: String, quantityg: number) {
     editor.edit(editBuilder => {
       editBuilder.insert(editor.selection.active, JSON.stringify(outputData, null, 2));
     });
+    // 生成完成提醒
+    vscode.window.showInformationMessage('mock数据生成完成！');
   });
+}
+
+//接口定义生成
+const portDefinitionModule = async function(connectorName: String, request: String) {
+  const [projectName, apiName, methodName] = connectorName.split('.');
+  // 生成schema里面文件
+  // 先在当前项目下的app目录下的schema目录下查找是否有和projectName名字一个目录
+  const foundFiles = await vscode.workspace.findFiles(`app/schema/${projectName}`, '**/node_modules/**', 1);
+
+  let newDirPath = '';
+  const workspaceRoot = vscode.workspace.workspaceFolders![0].uri;
+  const fs = require('fs');
+  const pathModule = require('path');
+
+  if (foundFiles.length === 0) {
+    // 没有的情况下在app/schema目录下创建一个名为projectName的目录
+    // 确保 app/schema 目录存在
+    const appPath = pathModule.join(workspaceRoot.fsPath, 'app');
+    if (!fs.existsSync(appPath)) {
+      fs.mkdirSync(appPath, { recursive: true });
+    }
+
+    const schemaPath = pathModule.join(appPath, 'schema');
+    if (!fs.existsSync(schemaPath)) {
+      fs.mkdirSync(schemaPath, { recursive: true });
+    }
+
+    // 创建 projectName 目录
+    newDirPath = pathModule.join(schemaPath, projectName);
+    if (!fs.existsSync(newDirPath)) {
+      fs.mkdirSync(newDirPath);
+    }
+  } else {
+    newDirPath = pathModule.dirname(foundFiles[0].fsPath);
+  }
+
+  // 在目录下创建或更新js文件
+  const fileName = `${apiName}.js`;
+  const filePath = pathModule.join(newDirPath, fileName);
+
+  const methodContent = `${methodName}:[{
+    packageName: '${projectName}',
+    service: '${apiName}',
+    apiName: '${methodName}',
+    method: '${request}',
+    dubboMethodName: '${methodName}',
+    action: '${projectName}/${apiName}/${methodName}'
+  }]`;
+
+  if (!fs.existsSync(filePath)) {
+    // 如果文件不存在，创建新文件
+    const fileContent = `module.exports = {
+      ${methodContent},
+    }
+    `;
+    fs.writeFileSync(filePath, fileContent);
+  } else {
+    // 如果文件存在，在module.exports中添加新的方法
+    let fileContent = fs.readFileSync(filePath, 'utf8');
+
+    // 检查是否已存在同名方法
+    if (!fileContent.includes(`${methodName}:[{`)) {
+      // 查找插入位置（在最后一个属性后，结束括号前）
+      const lastPropertyEnd = fileContent.lastIndexOf('}]');
+      if (lastPropertyEnd !== -1) {
+        // 找到插入点
+        const insertPosition = lastPropertyEnd + 2;
+        // 检查是否需要添加逗号
+        const hasTrailingComma = fileContent.substring(lastPropertyEnd + 2, fileContent.indexOf('\n', lastPropertyEnd + 2)).includes(',');
+        const comma = hasTrailingComma ? '' : ',';
+
+        fileContent = fileContent.substring(0, insertPosition) + 
+          comma + '\n  ' +
+          methodContent + ',\n};';
+        fs.writeFileSync(filePath, fileContent);
+      }
+    }
+  }
+
+  // 生成接口路由
+  //判断在app目录下的routes目录下是否存在有和projectName名字一个目录
+  const foundFilesMl = await vscode.workspace.findFiles(`app/routes/${projectName}`, '**/node_modules/**', 1);
+  let newDirPathQb = ''
+  if (foundFilesMl.length === 0) {
+    // 不存在的情况下在app/routes目录下创建一个名为projectName的目录
+    const appPath = pathModule.join(workspaceRoot.fsPath, 'app');
+    if (!fs.existsSync(appPath)) {
+      fs.mkdirSync(appPath, { recursive: true });
+    }
+
+    const schemaPath = pathModule.join(appPath, 'routes');
+    if (!fs.existsSync(schemaPath)) {
+      fs.mkdirSync(schemaPath, { recursive: true });
+    }
+
+    // 创建 projectName 目录
+    newDirPathQb = pathModule.join(schemaPath, projectName);
+    if (!fs.existsSync(newDirPathQb)) {
+      fs.mkdirSync(newDirPathQb);
+    }
+    
+    
+  } else {
+    // 存在
+    newDirPathQb = pathModule.dirname(foundFilesMl[0].fsPath);
+  }
+
+  // 在目录下创建或更新js文件
+  const fileNamex = `${apiName}.js`;
+  const filePathx = pathModule.join(newDirPathQb, fileNamex);
+  
+  // apiName 首字母小写
+  const apiNamex = apiName.charAt(0).toLowerCase() + apiName.slice(1);
+
+  if (!fs.existsSync(filePathx)) {
+    // 如果不存在，创建新文件并写入内容
+    const fileContent = `const dubboApi = require('@dubbo/${projectName}')\n\n
+    UA.${request === 'get' ? 'onGet':'onPost'}('/api/${apiName}/${methodName}', function (req, res) {
+      dubboApi.${apiNamex}.${methodName}.${request}({
+        data: {
+          ...${request === 'get' ? 'req.query':'req.body'}
+        }
+      }).then(rs => {
+        res.send(rs)
+      }).catch(err => {
+        console.error('${methodName}:' + err.description || JSON.stringify(err))
+      })
+    })`;
+    fs.writeFileSync(filePathx, fileContent);
+  } else {
+    // 如果存在，将代码插入到文件末尾
+    let existingContent = fs.readFileSync(filePathx, 'utf8');
+    const importStatement = `const dubboApi = require('@dubbo/${projectName}')\n\n`;
+    
+    // 如果还没有引入语句，则添加到顶部
+    if (!existingContent.includes(importStatement.trim())) {
+      existingContent = importStatement + existingContent;
+    }
+    
+    // 构造需要添加的路由代码（缩进2格）
+    const routeCode = `
+    UA.${request === 'get' ? 'onGet':'onPost'}('/api/${apiName}/${methodName}', function (req, res) {
+      dubboApi.${apiNamex}.${methodName}.${request}({
+        data: {
+          ...${request === 'get' ? 'req.query':'req.body'}
+        }
+      }).then(rs => {
+        res.send(rs)
+      }).catch(err => {
+        console.error('${methodName}:' + err.description || JSON.stringify(err))
+      })
+    })`;
+    
+    // 确保代码不会重复添加
+    if (!existingContent.includes(`'/api/${apiName}/${methodName}'`)) {
+      // 在文件末尾添加新代码（在最后的大括号前）
+      if (existingContent.trim().endsWith('}')) {
+        // 找到最后一个大括号的位置
+        const lastBracketIndex = existingContent.lastIndexOf('}');
+        existingContent = existingContent.substring(0, lastBracketIndex) + 
+                          routeCode + '\n' + 
+                          existingContent.substring(lastBracketIndex);
+      } else {
+        // 如果文件末尾没有大括号，直接添加代码
+        existingContent = existingContent + routeCode + '\n';
+      }
+    }
+    
+    fs.writeFileSync(filePathx, existingContent);
+  }
+
+  // 生成完成提醒
+  vscode.window.showInformationMessage('已在schema和routes目录下生成接口定义！有调整请自行调整！');
 }
 
 
@@ -268,5 +445,6 @@ export default {
   generateRandomChineseName,
   generateRandomWebsiteLink,
   generateMockData,
-  findDefinitionForClass
+  findDefinitionForClass,
+  portDefinitionModule
 };

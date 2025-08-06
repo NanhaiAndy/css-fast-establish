@@ -35,6 +35,9 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     await vscode.window.showTextDocument(doc);
+
+    // 生成完成提醒
+    vscode.window.showInformationMessage('css结构生成完毕！');
   });
 
   context.subscriptions.push(disposable);
@@ -82,6 +85,9 @@ export function activate(context: vscode.ExtensionContext) {
           );
           editBuilder.replace(fullRange, newContent);
         });
+
+        // 生成完成提醒
+        vscode.window.showInformationMessage('已在当前代码<style lang="less"下生成css结构！');
         return;
       }
     }
@@ -93,9 +99,58 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     await vscode.window.showTextDocument(doc);
+
+    // 生成完成提醒
+    vscode.window.showInformationMessage('css结构生成完毕！');
   });
 
   context.subscriptions.push(disposableXk);
+
+  // dubbo接口生成
+  const interfaceDefinition = vscode.commands.registerCommand('extension.interfaceDefinition', async () => {
+    // 弹出一个输入框
+    const connectorName = await vscode.window.showInputBox({
+      placeHolder: '请填入接口项目api接口名称，示例：java-xxx-xxx-api.WorksOrderService.createOrder'
+    });
+
+    if (!connectorName) {
+      return;
+    }
+
+      // 解析connectorName里面的内容，通过.来
+      const [projectName, apiName, methodName] = connectorName.split('.');
+      if (!projectName || !apiName || !methodName) {
+        // 弹窗提醒
+        vscode.window.showInformationMessage('请按照示例：java-xxx-xxx-api.WorksOrderService.createOrder填入正确的接口项目名称');
+        return null;
+      }
+
+    // 弹出二个输入框
+    let request = await vscode.window.showInputBox({
+      placeHolder: '请输入是get请求还是post请求'
+    });
+
+    if (!request) {
+      return;
+    }
+
+    if (request !== 'get' && request !== 'post') {
+      if (request === 'GET') {
+        request = 'get';
+      } else if (request === 'POST') {
+        request = 'post';
+      } else {
+        // 弹窗提醒
+        vscode.window.showInformationMessage('请正确填入是get请求或者post请求');
+        return null;
+      }
+    }
+
+    // 生成接口定义
+    examinecss.portDefinitionModule(connectorName, request);
+  });
+  
+  context.subscriptions.push(interfaceDefinition);
 
   // 生成mock数据
   const disposableMock = vscode.commands.registerCommand('extension.generateMockData', async () => {
@@ -155,30 +210,30 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   // 注册值定义提供器（用于点击跳转到赋值位置）
-context.subscriptions.push(
-  vscode.languages.registerDefinitionProvider(['html', 'vue', 'javascript', 'typescript'], {
-    async provideDefinition(document, position, token) {
-      // 获取光标位置的文本范围
-      const range = document.getWordRangeAtPosition(position);
-      if (!range) return null;
-      
-      // 获取当前这行全部文本
-      const lineText = document.lineAt(position.line).text;
-      // lineText里面是否包含/components或者@/components
-      if (lineText.includes('/components') || lineText.includes('@/components')) return null;
-      // 获取当前单词（可能是变量名或属性值）
-      const word = document.getText(range);
-      // 判断这个word拿到的是一个不存在中文和数字的字符串
-      if (/[\u4e00-\u9fa5]/.test(word)) return null;
-      // 同时判断word里面字符串不包含前端这些标签比如div span 名称，避免消耗去找标签
-      if (/^(<div>|<span>|<p>|<h1>|<h2>|<h3>|<h4>|<h5>|<h6>|<a>|<img>|<button>|<input>|<textarea>|<form>|<table>|<tr>|<td>|<th>|<ul>|<ol>|<li>|<dl>|<dt>|<dd>|<blockquote>|<pre>|<code>|<em>|<strong>)$/.test(word)) return null;
-      
-      // 尝试在整个工作空间搜索这个值的定义
-      const locations = await examinecss.findValueDefinition(word, document);
-      return locations.length > 0 ? locations : null;
-    }
-  })
-);
+  context.subscriptions.push(
+    vscode.languages.registerDefinitionProvider(['html', 'vue', 'javascript', 'typescript'], {
+      async provideDefinition(document, position, token) {
+        // 获取光标位置的文本范围
+        const range = document.getWordRangeAtPosition(position);
+        if (!range) return null;
+        
+        // 获取当前这行全部文本
+        const lineText = document.lineAt(position.line).text;
+        // lineText里面是否包含/components或者@/components
+        if (lineText.includes('/components') || lineText.includes('@/components')) return null;
+        // 获取当前单词（可能是变量名或属性值）
+        const word = document.getText(range);
+        // 判断这个word拿到的是一个不存在中文和数字的字符串
+        if (/[\u4e00-\u9fa5]/.test(word)) return null;
+        // 同时判断word里面字符串不包含前端这些标签比如div span 名称，避免消耗去找标签
+        if (/^(<div>|<span>|<p>|<h1>|<h2>|<h3>|<h4>|<h5>|<h6>|<a>|<img>|<button>|<input>|<textarea>|<form>|<table>|<tr>|<td>|<th>|<ul>|<ol>|<li>|<dl>|<dt>|<dd>|<blockquote>|<pre>|<code>|<em>|<strong>)$/.test(word)) return null;
+        
+        // 尝试在整个工作空间搜索这个值的定义
+        const locations = await examinecss.findValueDefinition(word, document);
+        return locations.length > 0 ? locations : null;
+      }
+    })
+  );
 }
 
 export function deactivate() {}

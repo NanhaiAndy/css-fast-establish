@@ -2,7 +2,7 @@
   "name": "css-fast-establish",
   "displayName": "前端百宝箱",
   "description": "前端开发辅助工具，帮助前端开发人员提高效率，减少重复工作，提升开发质量。",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "publisher": "NanhaiAndy",
   "engines": {
     "vscode": "^1.30.0"
@@ -48,7 +48,11 @@
       },
       {
         "command": "extension.generateMockData",
-        "title": "根据接口文档格式生成Mock数据（多层级暂不支持）"
+        "title": "根据接口文档格式生成Mock数据（多层级不支持）"
+      },
+      {
+        "command": "extension.interfaceDefinition",
+        "title": "生成dubbo接口定义(新)"
       }
     ],
     "menus": {
@@ -65,6 +69,11 @@
         },
         {
           "command": "extension.generateMockData",
+          "group": "navigation",
+          "when": "editorLangId == js || editorLangId == vue || editorLangId == javascript || editorLangId == javascriptreact"
+        },
+        {
+          "command": "extension.interfaceDefinition",
           "group": "navigation",
           "when": "editorLangId == js || editorLangId == vue || editorLangId == javascript || editorLangId == javascriptreact"
         }

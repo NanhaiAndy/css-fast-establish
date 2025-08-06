@@ -4,6 +4,10 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/) 规范，
 版本号采用 [语义化版本](https://semver.org/lang/zh-CN/) 标准。
 
+## [1.0.9] - 2025-08-06
+### 优化
+- 根据接口名称api生成dubbo接口定义
+
 ## [1.0.8] - 2025-07-28
 ### 优化
 - 争对在开发uni微信小程序，存在复杂代码结构，无法生成部分css结构，现已修复支持
