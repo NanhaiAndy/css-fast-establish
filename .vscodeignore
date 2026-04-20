@@ -2,9 +2,13 @@
 .vscode-test/**
 out/test/**
 src/**
+src/webview/**
 .gitignore
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/tslint.json
 **/*.map
 **/*.ts
+vite.config.ts
+tsconfig.webview.json
+webview-dist/assets/*.map

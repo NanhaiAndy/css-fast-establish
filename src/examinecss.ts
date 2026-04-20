@@ -158,8 +158,8 @@ const generateRandomWebsiteLink = function() {
   return websites[Math.floor(Math.random() * websites.length)]
 }
 
-// mock数据生成
-const generateMockData = function(textContent: String, quantityg: number) { 
+// Aimock数据生成判断
+const generateMockDataJudge = function(textContent: String) {
   // 在每行的字段名前添加制表符
   const processedInput = textContent.split('\t').map((line, index) => {
     // 在第一个制表符前添加一个制表符，即在字段名前添加制表符
@@ -177,128 +177,226 @@ const generateMockData = function(textContent: String, quantityg: number) {
     return null;
   }
 
-  const structureList = [];
-  for (let i = 0; i < lines.length; i += 3) {
-    let fieldName = lines[i].trim();
-    const gb = i+1
-    if (gb === lines.length) {
+  return textContent
+}
+
+// 纯代码生成多层mock数据
+const generateMockDataMultiLayer = function(textContent: string): { [key: string]: any } | null {
+  // 按制表符分割成tokens
+  const rawTokens = textContent.split(/\t/).map(t => t.trim()).filter(t => t.length > 0);
+
+  if (rawTokens.length < 3) {
+    vscode.window.showInformationMessage('生成mock数据失败，结构不对，请按照官方接口文档进行复制');
+    return null;
+  }
+
+  // 解析所有类型定义和字段
+  const typeMap = new Map<string, Array<{ fieldName: string; fieldType: string; required: string }>>();
+  let currentTypeName = '__root__';
+  let currentFields: Array<{ fieldName: string; fieldType: string; required: string }> = [];
+
+  // 从token中提取字段名（去掉前面的中文描述）
+  function extractFieldName(token: string): string {
+    const cleaned = token.replace(/└─/g, '').trim();
+    // 如果末尾有英文字段名（前面有中文或空格描述），提取最后一个英文词
+    const match = cleaned.match(/\s+([a-zA-Z][a-zA-Z0-9_<>]*)\s*$/);
+    if (match) {
+      return match[1];
+    }
+    return cleaned;
+  }
+
+  let i = 0;
+  while (i < rawTokens.length) {
+    // 检查是否是类型头（后面跟着 类型、可否为空）
+    if (i + 2 < rawTokens.length && rawTokens[i + 1] === '类型' && rawTokens[i + 2] === '可否为空') {
+      // 保存当前类型的字段
+      if (currentFields.length > 0) {
+        typeMap.set(currentTypeName, currentFields);
+      }
+      // 开始新类型定义
+      currentTypeName = extractFieldName(rawTokens[i]);
+      currentFields = [];
+
+      // 跳过类型头（类型名、类型、可否为空）
+      i += 3;
+      // 处理「说明」token，可能包含第一个字段名
+      if (i < rawTokens.length) {
+        const descToken = rawTokens[i];
+        if (descToken.startsWith('说明')) {
+          const rest = descToken.substring(2).trim();
+          if (rest && /^[a-zA-Z]/.test(rest)) {
+            // 说明后面跟着字段名，把它作为当前token重新解析
+            rawTokens[i] = rest;
+            // 不递增i，下一轮处理这个字段名
+          } else {
+            i += 1;
+          }
+        } else {
+          i += 1;
+        }
+      }
+      continue;
+    }
+
+    // 普通字段：提取字段名、类型、是否必填
+    if (i + 2 < rawTokens.length) {
+      const fieldName = extractFieldName(rawTokens[i]);
+      const fieldType = rawTokens[i + 1].trim();
+      const required = rawTokens[i + 2].trim();
+
+      if (fieldName && fieldType && !fieldType.includes('…')) {
+        currentFields.push({ fieldName, fieldType, required });
+      }
+      // 跳过 name、type、required，下一个token是描述（包含下一个字段名）
+      i += 3;
+    } else {
       break;
     }
-    // 字段类型
-    const fieldType = lines[i+1].trim();
-    // 是否必需
-    const required = lines[i+2].trim();
-    // 根据字段类型和描述设置默认值
-    if (fieldName && fieldType) {
-      // 去掉fieldName里面的└─
-      fieldName = fieldName.replace(/└─/g, '');
-      structureList.push({
-        fieldName,
-        fieldType,
-        required,
-      })
-    }
   }
-  // mock数据
-  const fieldsList: { [key: string]: any; }[] = [];
-  for (let j = 0; j < quantityg; j++) {
-    const result: { [key: string]: any } = {};
-    for (let x = 0; x < structureList.length; x++) {
-      const { fieldName, fieldType, required } = structureList[x];
-      switch (fieldType) {
-          case 'String':
-              // 随机生成字符串
-              let text = generateRandomText(12);
-              // fieldName里面是否包含name或者Name
-              if (fieldName.includes('name') || fieldName.includes('Name')) {
-                // 随机生成名称
-                text = generateRandomChineseName(3);
-              } else if (fieldName.includes('url') || fieldName.includes('Url')) {
-                // 随机生成一个网站链接
-                text = generateRandomWebsiteLink();
-              }
-              result[fieldName] = text;
-              break;
-          case 'Integer':
-              // 随机生成数字
-              result[fieldName] = generateRandomNumber(0, 10);
-              break;
-          case 'Long':
-              // 随机生成数字
-              result[fieldName] = generateRandomNumber(1000000, 99999999);
-              break;
-          case 'Boolean':
-              // 随机生成布尔值
-              result[fieldName] = Math.random() < 0.5;
-              break;
-          case 'Date':
-              // 随机生成时间戳
-                result[fieldName] = generateRandomTimestamp();
-              break;
-          default:
-              result[fieldName] = fieldName;
+
+  // 保存最后一个类型
+  if (currentFields.length > 0) {
+    typeMap.set(currentTypeName, currentFields);
+  }
+
+  // 生成mock数据
+  const rootFields = typeMap.get('__root__');
+  if (!rootFields || rootFields.length === 0) {
+    vscode.window.showInformationMessage('生成mock数据失败，未识别到根字段');
+    return null;
+  }
+
+  return generateMockObject(rootFields, typeMap, 0, new Set());
+}
+
+// 根据字段定义生成mock对象
+function generateMockObject(fields: Array<{ fieldName: string; fieldType: string; required: string }>, typeMap: Map<string, Array<{ fieldName: string; fieldType: string; required: string }>>, depth: number, visitedTypes: Set<string>): { [key: string]: any } {
+  if (depth > 5) return {};
+
+  const result: { [key: string]: any } = {};
+
+  for (const { fieldName, fieldType } of fields) {
+    result[fieldName] = generateMockValue(fieldName, fieldType, typeMap, depth, visitedTypes);
+  }
+
+  return result;
+}
+
+// 根据字段类型生成mock值
+function generateMockValue(fieldName: string, fieldType: string, typeMap: Map<string, Array<{ fieldName: string; fieldType: string; required: string }>>, depth: number, visitedTypes: Set<string>): any {
+  // 处理List<XXX>类型
+  const listMatch = fieldType.match(/^List<(.+)>$/);
+  if (listMatch) {
+    const innerType = listMatch[1];
+    // 如果内部类型有定义
+    if (typeMap.has(innerType)) {
+      // 自引用检测：如果已经访问过该类型，返回空数组
+      if (visitedTypes.has(innerType)) {
+        return [];
       }
+      const count = Math.floor(Math.random() * 2) + 1;
+      const innerFields = typeMap.get(innerType)!;
+      const newVisited = new Set(visitedTypes);
+      newVisited.add(innerType);
+      return Array.from({ length: count }, () => generateMockObject(innerFields, typeMap, depth + 1, newVisited));
     }
-    // 在根据result里面的字段和类型生成数据
-    fieldsList.push(result);
+    // 内部类型没有定义，生成基本值
+    const item = generateMockValue(fieldName, innerType, typeMap, depth, visitedTypes);
+    return [item];
   }
 
-  let outputData: { [key: string]: any; } | { [key: string]: any; }[] = fieldsList;
-  if (fieldsList.length === 1) {
-    outputData = fieldsList[0];
+  // 检查是否有对应类型定义
+  if (typeMap.has(fieldType)) {
+    // 自引用检测
+    if (visitedTypes.has(fieldType)) {
+      return {};
+    }
+    const fields = typeMap.get(fieldType)!;
+    const newVisited = new Set(visitedTypes);
+    newVisited.add(fieldType);
+    return generateMockObject(fields, typeMap, depth + 1, newVisited);
   }
 
-  // 把fieldsList插入到光标处
-  vscode.commands.executeCommand('editor.action.insertLineAfter').then(() => {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) return;
-    editor.edit(editBuilder => {
-      editBuilder.insert(editor.selection.active, JSON.stringify(outputData, null, 2));
-    });
-    // 生成完成提醒
-    vscode.window.showInformationMessage('mock数据生成完成！');
-  });
+  // 基本类型处理
+  switch (fieldType) {
+    case 'String':
+      if (fieldName.includes('name') || fieldName.includes('Name')) {
+        return generateRandomChineseName(3);
+      }
+      if (fieldName.includes('url') || fieldName.includes('Url') || fieldName.endsWith('Url')) {
+        return generateRandomWebsiteLink();
+      }
+      if (fieldName.includes('Mobile') || fieldName.includes('mobile') || fieldName.includes('Phone') || fieldName.includes('phone')) {
+        return '13800138000';
+      }
+      return generateRandomText(12);
+
+    case 'Integer':
+    case 'int':
+      return generateRandomNumber(0, 100);
+
+    case 'Long':
+    case 'long':
+      return generateRandomNumber(1000000, 999999999);
+
+    case 'Boolean':
+    case 'boolean':
+      return Math.random() < 0.5;
+
+    case 'Date':
+      return generateRandomTimestamp();
+
+    case 'Double':
+    case 'double':
+    case 'Float':
+    case 'float':
+      return parseFloat((Math.random() * 10000).toFixed(6));
+
+    default:
+      // 未知自定义类型，尝试从typeMap查找
+      if (typeMap.has(fieldType)) {
+        const newVisited = new Set(visitedTypes);
+        newVisited.add(fieldType);
+        return generateMockObject(typeMap.get(fieldType)!, typeMap, depth + 1, newVisited);
+      }
+      return generateRandomText(12);
+  }
 }
 
 //接口定义生成
 const portDefinitionModule = async function(connectorName: String, request: String) {
   const [projectName, apiName, methodName] = connectorName.split('.');
-  // 生成schema里面文件
-  // 先在当前项目下的app目录下的schema目录下查找是否有和projectName名字一个目录
-  const foundFiles = await vscode.workspace.findFiles(`app/schema/${projectName}`, '**/node_modules/**', 1);
-
-  let newDirPath = '';
   const workspaceRoot = vscode.workspace.workspaceFolders![0].uri;
   const fs = require('fs');
   const pathModule = require('path');
 
-  if (foundFiles.length === 0) {
-    // 没有的情况下在app/schema目录下创建一个名为projectName的目录
-    // 确保 app/schema 目录存在
-    const appPath = pathModule.join(workspaceRoot.fsPath, 'app');
-    if (!fs.existsSync(appPath)) {
-      fs.mkdirSync(appPath, { recursive: true });
-    }
+  try {
+    // ========== 生成 schema 文件 ==========
+    // 先在当前项目下的app目录下的schema目录下查找是否有和projectName名字一个目录
+    const foundFiles = await vscode.workspace.findFiles(`app/schema/${projectName}`, '**/node_modules/**', 1);
 
-    const schemaPath = pathModule.join(appPath, 'schema');
-    if (!fs.existsSync(schemaPath)) {
+    let newDirPath = '';
+
+    if (foundFiles.length === 0) {
+      // 确保 app/schema 目录存在
+      const schemaPath = pathModule.join(workspaceRoot.fsPath, 'app', 'schema');
       fs.mkdirSync(schemaPath, { recursive: true });
+
+      // 创建 projectName 目录
+      newDirPath = pathModule.join(schemaPath, projectName);
+      if (!fs.existsSync(newDirPath)) {
+        fs.mkdirSync(newDirPath);
+      }
+    } else {
+      newDirPath = pathModule.dirname(foundFiles[0].fsPath);
     }
 
-    // 创建 projectName 目录
-    newDirPath = pathModule.join(schemaPath, projectName);
-    if (!fs.existsSync(newDirPath)) {
-      fs.mkdirSync(newDirPath);
-    }
-  } else {
-    newDirPath = pathModule.dirname(foundFiles[0].fsPath);
-  }
+    // 在目录下创建或更新js文件
+    const fileName = `${apiName}.js`;
+    const filePath = pathModule.join(newDirPath, fileName);
 
-  // 在目录下创建或更新js文件
-  const fileName = `${apiName}.js`;
-  const filePath = pathModule.join(newDirPath, fileName);
-
-  const methodContent = `${methodName}:[{
+    const methodContent = `${methodName}:[{
     packageName: '${projectName}',
     service: '${apiName}',
     apiName: '${methodName}',
@@ -307,133 +405,326 @@ const portDefinitionModule = async function(connectorName: String, request: Stri
     action: '${projectName}/${apiName}/${methodName}'
   }]`;
 
-  if (!fs.existsSync(filePath)) {
-    // 如果文件不存在，创建新文件
-    const fileContent = `module.exports = {
-      ${methodContent},
-    }
-    `;
-    fs.writeFileSync(filePath, fileContent);
-  } else {
-    // 如果文件存在，在module.exports中添加新的方法
-    let fileContent = fs.readFileSync(filePath, 'utf8');
+    if (!fs.existsSync(filePath)) {
+      // 如果文件不存在，创建新文件
+      const fileContent = `module.exports = {
+  ${methodContent},
+}
+`;
+      fs.writeFileSync(filePath, fileContent);
+    } else {
+      // 如果文件存在，在module.exports中添加新的方法
+      let fileContent = fs.readFileSync(filePath, 'utf8');
 
-    // 检查是否已存在同名方法
-    if (!fileContent.includes(`${methodName}:[{`)) {
-      // 查找插入位置（在最后一个属性后，结束括号前）
-      const lastPropertyEnd = fileContent.lastIndexOf('}]');
-      if (lastPropertyEnd !== -1) {
-        // 找到插入点
-        const insertPosition = lastPropertyEnd + 2;
-        // 检查是否需要添加逗号
-        const hasTrailingComma = fileContent.substring(lastPropertyEnd + 2, fileContent.indexOf('\n', lastPropertyEnd + 2)).includes(',');
-        const comma = hasTrailingComma ? '' : ',';
-
-        fileContent = fileContent.substring(0, insertPosition) + 
-          comma + '\n  ' +
-          methodContent + ',\n};';
-        fs.writeFileSync(filePath, fileContent);
+      // 检查是否已存在同名方法
+      if (!fileContent.includes(`${methodName}:[{`)) {
+        // 在 }; 前插入新方法
+        const closingIndex = fileContent.lastIndexOf('};');
+        if (closingIndex !== -1) {
+          const before = fileContent.substring(0, closingIndex);
+          fileContent = before + `  ${methodContent},\n};`;
+          fs.writeFileSync(filePath, fileContent);
+        }
       }
     }
-  }
 
-  // 生成接口路由
-  //判断在app目录下的routes目录下是否存在有和projectName名字一个目录
-  const foundFilesMl = await vscode.workspace.findFiles(`app/routes/${projectName}`, '**/node_modules/**', 1);
-  let newDirPathQb = ''
-  if (foundFilesMl.length === 0) {
-    // 不存在的情况下在app/routes目录下创建一个名为projectName的目录
-    const appPath = pathModule.join(workspaceRoot.fsPath, 'app');
-    if (!fs.existsSync(appPath)) {
-      fs.mkdirSync(appPath, { recursive: true });
-    }
+    // ========== 生成 routes 文件 ==========
+    const foundFilesMl = await vscode.workspace.findFiles(`app/routes/${projectName}`, '**/node_modules/**', 1);
+    let newDirPathQb = '';
 
-    const schemaPath = pathModule.join(appPath, 'routes');
-    if (!fs.existsSync(schemaPath)) {
-      fs.mkdirSync(schemaPath, { recursive: true });
-    }
+    if (foundFilesMl.length === 0) {
+      // 确保 app/routes 目录存在
+      const routesPath = pathModule.join(workspaceRoot.fsPath, 'app', 'routes');
+      fs.mkdirSync(routesPath, { recursive: true });
 
-    // 创建 projectName 目录
-    newDirPathQb = pathModule.join(schemaPath, projectName);
-    if (!fs.existsSync(newDirPathQb)) {
-      fs.mkdirSync(newDirPathQb);
-    }
-    
-    
-  } else {
-    // 存在
-    newDirPathQb = pathModule.dirname(foundFilesMl[0].fsPath);
-  }
-
-  // 在目录下创建或更新js文件
-  const fileNamex = `${apiName}.js`;
-  const filePathx = pathModule.join(newDirPathQb, fileNamex);
-  
-  // apiName 首字母小写
-  const apiNamex = apiName.charAt(0).toLowerCase() + apiName.slice(1);
-
-  if (!fs.existsSync(filePathx)) {
-    // 如果不存在，创建新文件并写入内容
-    const fileContent = `const dubboApi = require('@dubbo/${projectName}')\n\n
-    UA.${request === 'get' ? 'onGet':'onPost'}('/api/${apiName}/${methodName}', function (req, res) {
-      dubboApi.${apiNamex}.${methodName}.${request}({
-        data: {
-          ...${request === 'get' ? 'req.query':'req.body'}
-        }
-      }).then(rs => {
-        res.send(rs)
-      }).catch(err => {
-        console.error('${methodName}:' + err.description || JSON.stringify(err))
-      })
-    })`;
-    fs.writeFileSync(filePathx, fileContent);
-  } else {
-    // 如果存在，将代码插入到文件末尾
-    let existingContent = fs.readFileSync(filePathx, 'utf8');
-    const importStatement = `const dubboApi = require('@dubbo/${projectName}')\n\n`;
-    
-    // 如果还没有引入语句，则添加到顶部
-    if (!existingContent.includes(importStatement.trim())) {
-      existingContent = importStatement + existingContent;
-    }
-    
-    // 构造需要添加的路由代码（缩进2格）
-    const routeCode = `
-    UA.${request === 'get' ? 'onGet':'onPost'}('/api/${apiName}/${methodName}', function (req, res) {
-      dubboApi.${apiNamex}.${methodName}.${request}({
-        data: {
-          ...${request === 'get' ? 'req.query':'req.body'}
-        }
-      }).then(rs => {
-        res.send(rs)
-      }).catch(err => {
-        console.error('${methodName}:' + err.description || JSON.stringify(err))
-      })
-    })`;
-    
-    // 确保代码不会重复添加
-    if (!existingContent.includes(`'/api/${apiName}/${methodName}'`)) {
-      // 在文件末尾添加新代码（在最后的大括号前）
-      if (existingContent.trim().endsWith('}')) {
-        // 找到最后一个大括号的位置
-        const lastBracketIndex = existingContent.lastIndexOf('}');
-        existingContent = existingContent.substring(0, lastBracketIndex) + 
-                          routeCode + '\n' + 
-                          existingContent.substring(lastBracketIndex);
-      } else {
-        // 如果文件末尾没有大括号，直接添加代码
-        existingContent = existingContent + routeCode + '\n';
+      // 创建 projectName 目录
+      newDirPathQb = pathModule.join(routesPath, projectName);
+      if (!fs.existsSync(newDirPathQb)) {
+        fs.mkdirSync(newDirPathQb);
       }
+    } else {
+      newDirPathQb = pathModule.dirname(foundFilesMl[0].fsPath);
     }
-    
-    fs.writeFileSync(filePathx, existingContent);
-  }
 
-  // 生成完成提醒
-  vscode.window.showInformationMessage('已在schema和routes目录下生成接口定义！有调整请自行调整！');
+    // 在目录下创建或更新js文件
+    const fileNamex = `${apiName}.js`;
+    const filePathx = pathModule.join(newDirPathQb, fileNamex);
+
+    // apiName 首字母小写
+    const apiNamex = apiName.charAt(0).toLowerCase() + apiName.slice(1);
+
+    const routeCode = `UA.${request === 'get' ? 'onGet':'onPost'}('/api/${apiName}/${methodName}', function (req, res) {
+  dubboApi.${apiNamex}.${methodName}.${request}({
+    data: {
+      ...${request === 'get' ? 'req.query':'req.body'}
+    }
+  }).then(rs => {
+    res.send(rs)
+  }).catch(err => {
+    console.error('${methodName}:' + err.description || JSON.stringify(err))
+  })
+})`;
+
+    if (!fs.existsSync(filePathx)) {
+      // 如果不存在，创建新文件并写入内容
+      const fileContent = `const dubboApi = require('@dubbo/${projectName}')
+
+${routeCode}
+`;
+      fs.writeFileSync(filePathx, fileContent);
+    } else {
+      // 如果存在，将代码插入到文件末尾
+      let existingContent = fs.readFileSync(filePathx, 'utf8');
+      const importStatement = `const dubboApi = require('@dubbo/${projectName}')`;
+
+      // 如果还没有引入语句，则添加到顶部
+      if (!existingContent.includes(importStatement)) {
+        existingContent = importStatement + '\n\n' + existingContent;
+      }
+
+      // 确保代码不会重复添加
+      if (!existingContent.includes(`'/api/${apiName}/${methodName}'`)) {
+        // 在文件末尾追加路由代码
+        existingContent = existingContent.trimEnd() + '\n\n' + routeCode + '\n';
+      }
+
+      fs.writeFileSync(filePathx, existingContent);
+    }
+
+    // 生成完成提醒
+    vscode.window.showInformationMessage('已在schema和routes目录下生成接口定义！有调整请自行调整！');
+  } catch (err: any) {
+    vscode.window.showErrorMessage(`接口定义生成失败: ${err.message || err}`);
+  }
 }
 
+  // 添加获取 WiFi 名称的函数
+  const getWifiName = async function(): Promise<string | null> {
+    try {
+      // 这里根据不同的操作系统使用不同的命令获取 WiFi 名称
+      const os = require('os');
+      const platform = os.platform();
+      let command: string;
+  
+      if (platform === 'win32') {
+        // Windows 系统
+        command = 'netsh wlan show interfaces | findstr "SSID"';
+      } else if (platform === 'darwin') {
+        // macOS 系统
+        command = '/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | grep "SSID"';
+      } else {
+        // Linux 系统
+        command = 'iwgetid -r';
+      }
+  
+      const { execSync } = require('child_process');
+      const stdout = execSync(command, { encoding: 'utf8' });
+      return stdout.trim();
+    } catch (error) {
+      console.error('获取 WiFi 名称失败:', error);
+      return null;
+    }
+  }
 
+
+
+// 通过生成物批量生成接口定义
+const interfaceDefinitionFromArtifact = async function() {
+  const fs = require('fs');
+  const pathModule = require('path');
+  const os = require('os');
+  const { execSync } = require('child_process');
+
+  // 1. 输入 git 生成物地址
+  const gitUrl = await vscode.window.showInputBox({
+    placeHolder: '请填入生成物地址，示例：https://git.xxx.la/xxx/xxx-api.git#分支名（#分支名可选）',
+    ignoreFocusOut: true
+  });
+  if (!gitUrl) { return; }
+
+  // 解析 URL 和分支
+  const cleanUrl = gitUrl.replace(/^git\+/, '');
+  const hashIndex = cleanUrl.lastIndexOf('#');
+  const repoUrl = hashIndex !== -1 ? cleanUrl.substring(0, hashIndex) : cleanUrl;
+  const branch = hashIndex !== -1 ? cleanUrl.substring(hashIndex + 1) : '';
+
+  // 2. 克隆到临时目录
+  const tempDir = pathModule.join(os.tmpdir(), `dubbo-artifact-${Date.now()}`);
+  await vscode.window.withProgress({
+    location: vscode.ProgressLocation.Notification,
+    title: '正在拉取生成物...',
+    cancellable: false
+  }, async () => {
+    const cloneCmd = `git clone --depth 1${branch ? ' -b ' + branch : ''} ${repoUrl} "${tempDir}"`;
+    execSync(cloneCmd, { stdio: 'pipe' });
+  });
+
+  try {
+    // 3. 解析 package.json 获取项目名
+    const pkgPath = pathModule.join(tempDir, 'package.json');
+    if (!fs.existsSync(pkgPath)) {
+      vscode.window.showErrorMessage('未找到 package.json，请确认是否为有效的 dubbo 生成物仓库');
+      return;
+    }
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    const projectName = pkg.name ? pkg.name.replace(/^@dubbo\//, '') : '';
+    if (!projectName) {
+      vscode.window.showErrorMessage('package.json 中未找到有效的 name 字段');
+      return;
+    }
+
+    // 4. 解析 index.js 获取服务列表
+    const indexPath = pathModule.join(tempDir, 'index.js');
+    if (!fs.existsSync(indexPath)) {
+      vscode.window.showErrorMessage('未找到 index.js，请确认生成物结构');
+      return;
+    }
+    const indexContent = fs.readFileSync(indexPath, 'utf8');
+    const apiMatch = indexContent.match(/module\.exports\.api\s*=\s*\{([\s\S]*?)\};/);
+    if (!apiMatch) {
+      vscode.window.showErrorMessage('index.js 中未找到 module.exports.api 定义');
+      return;
+    }
+    const serviceMatches = [...apiMatch[1].matchAll(/"?(\w+)"?\s*:\s*require\s*\(\s*["']([^"']+)["']\s*\)/g)];
+    const services = serviceMatches.map(m => ({ name: m[1], requirePath: m[2] }));
+    if (services.length === 0) {
+      vscode.window.showErrorMessage('未解析到任何服务');
+      return;
+    }
+
+    // 5. 选择服务
+    const selectedService = await vscode.window.showQuickPick(
+      services.map(s => s.name),
+      { placeHolder: `项目: ${projectName}，请选择要生成的服务` }
+    );
+    if (!selectedService) { return; }
+
+    const serviceInfo = services.find(s => s.name === selectedService)!;
+
+    // 6. 解析服务文件获取方法列表
+    const serviceFilePath = pathModule.join(tempDir, serviceInfo.requirePath) + '.js';
+    // 也尝试不带 .js 的路径（require 路径可能不含扩展名）
+    const resolvedServicePath = fs.existsSync(serviceFilePath) ? serviceFilePath : serviceFilePath.replace(/\.js$/, '');
+    const actualServicePath = fs.existsSync(resolvedServicePath) ? resolvedServicePath : serviceFilePath + '.js';
+
+    if (!fs.existsSync(actualServicePath)) {
+      vscode.window.showErrorMessage(`未找到服务文件: ${serviceInfo.requirePath}`);
+      return;
+    }
+    const serviceContent = fs.readFileSync(actualServicePath, 'utf8');
+    const paramsMatch = serviceContent.match(/params\s*:\s*\{([\s\S]*?)\n\s*\}\s*\}/);
+    if (!paramsMatch) {
+      vscode.window.showErrorMessage(`未在 ${selectedService} 中找到 params 定义`);
+      return;
+    }
+    const methodMatches = [...paramsMatch[1].matchAll(/^\s+(\w+)\s*:\s*\{/gm)];
+    const methods = methodMatches.map(m => m[1]).filter(k => !k.startsWith('$'));
+    if (methods.length === 0) {
+      vscode.window.showErrorMessage(`${selectedService} 中未解析到任何方法`);
+      return;
+    }
+
+    // 7. 多选要生成的方法
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.canSelectMany = true;
+    quickPick.placeholder = '请勾选要生成的方法（已全选）';
+    quickPick.items = methods.map(m => ({ label: m }));
+    quickPick.selectedItems = quickPick.items as vscode.QuickPickItem[];
+    const selectedMethods = await new Promise<vscode.QuickPickItem[] | undefined>((resolve) => {
+      quickPick.onDidAccept(() => {
+        resolve(quickPick.selectedItems.length > 0 ? [...quickPick.selectedItems] : undefined);
+        quickPick.hide();
+      });
+      quickPick.onDidHide(() => resolve(undefined));
+      quickPick.show();
+    });
+    if (!selectedMethods) { return; }
+
+    // 8. 逐个选择请求方式
+    const requestMap: { [method: string]: string } = {};
+    for (const methodItem of selectedMethods) {
+      const methodName = methodItem.label;
+      const req = await vscode.window.showQuickPick(['GET', 'POST'], {
+        placeHolder: `请选择 ${methodName} 的请求方式`
+      });
+      if (!req) { return; }
+      requestMap[methodName] = req.toLowerCase();
+    }
+
+    // 9. 批量生成
+    const workspaceRoot = vscode.workspace.workspaceFolders![0].uri;
+    let generated = 0;
+    let skipped = 0;
+    const skippedMethods: string[] = [];
+
+    for (const methodName of Object.keys(requestMap)) {
+      const request = requestMap[methodName];
+      const apiName = selectedService;
+      const connectorName = `${projectName}.${apiName}.${methodName}`;
+
+      // 检查是否已存在（schema 文件）
+      const schemaDir = pathModule.join(workspaceRoot.fsPath, 'app', 'schema', projectName);
+      const schemaFilePath = pathModule.join(schemaDir, `${apiName}.js`);
+      if (fs.existsSync(schemaFilePath)) {
+        const content = fs.readFileSync(schemaFilePath, 'utf8');
+        if (content.includes(`${methodName}:[{`)) {
+          skippedMethods.push(methodName);
+          skipped++;
+          continue;
+        }
+      }
+
+      await portDefinitionModule(connectorName, request);
+      generated++;
+    }
+
+    // 10. 更新项目 package.json 添加 @dubbo 依赖
+    const projectPkgPath = pathModule.join(workspaceRoot.fsPath, 'package.json');
+    if (fs.existsSync(projectPkgPath)) {
+      try {
+        const projectPkg = JSON.parse(fs.readFileSync(projectPkgPath, 'utf8'));
+        if (!projectPkg.dependencies) {
+          projectPkg.dependencies = {};
+        }
+
+        const dubboPkgName = `@dubbo/${projectName}`;
+        const dubboPkgValue = `git+${cleanUrl}`;
+        const existingValue = projectPkg.dependencies[dubboPkgName];
+
+        // 判断操作类型：新增、替换、跳过
+        if (!existingValue) {
+          // 不存在，新增
+          projectPkg.dependencies[dubboPkgName] = dubboPkgValue;
+          fs.writeFileSync(projectPkgPath, JSON.stringify(projectPkg, null, 2) + '\n');
+          vscode.window.showInformationMessage(`已添加依赖: ${dubboPkgName}`);
+        } else if (existingValue !== dubboPkgValue) {
+          // 已存在但值不同，替换
+          projectPkg.dependencies[dubboPkgName] = dubboPkgValue;
+          fs.writeFileSync(projectPkgPath, JSON.stringify(projectPkg, null, 2) + '\n');
+          vscode.window.showInformationMessage(`已更新依赖: ${dubboPkgName}\n原值: ${existingValue}\n新值: ${dubboPkgValue}`);
+        }
+        // 值相同则跳过，不做任何操作
+      } catch (err: any) {
+        vscode.window.showWarningMessage(`更新 package.json 失败: ${err.message}`);
+      }
+    }
+
+    // 生成结果提示
+    let message = `生成完毕！共生成 ${generated} 个接口`;
+    if (skipped > 0) {
+      message += `，跳过 ${skipped} 个已存在的方法: ${skippedMethods.join(', ')}`;
+    }
+    vscode.window.showInformationMessage(message);
+
+  } finally {
+    // 清理临时目录
+    try {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    } catch (e) {
+      // 忽略清理失败
+    }
+  }
+};
 
 export default {
   findValueDefinition,
@@ -444,7 +735,10 @@ export default {
   generateRandomTimestamp,
   generateRandomChineseName,
   generateRandomWebsiteLink,
-  generateMockData,
+  generateMockDataJudge,
+  generateMockDataMultiLayer,
   findDefinitionForClass,
-  portDefinitionModule
+  portDefinitionModule,
+  getWifiName,
+  interfaceDefinitionFromArtifact
 };

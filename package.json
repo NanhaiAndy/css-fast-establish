@@ -1,16 +1,19 @@
 {
   "name": "css-fast-establish",
-  "displayName": "前端百宝箱",
-  "description": "前端开发辅助工具，帮助前端开发人员提高效率，减少重复工作，提升开发质量。",
-  "version": "1.0.9",
+  "displayName": "frontend-toolkit-前端百宝箱",
+  "description": "Empower your daily frontend workflow with built-in utilities — boost productivity and lighten the workload.通过内置小工具，辅助前端日常开发，提升工作效率，减轻负担",
+  "version": "2.0.0",
   "publisher": "NanhaiAndy",
   "engines": {
-    "vscode": "^1.30.0"
+    "vscode": "^1.74.0"
   },
   "categories": [
     "Other"
   ],
   "keywords": [
+    "toolkit",
+    "frontend-toolkit",
+    "frontend",
     "establish",
     "CSS fast",
     "mock",
@@ -20,14 +23,15 @@
     "前端百宝箱",
     "前端工具",
     "前端辅助",
+    "ai",
+    "AI",
+    "class",
+    "className",
     "辅助",
     "HTML",
     "JSX"
   ],
   "activationEvents": [
-    "onCommand:extension.generateCssTree",
-    "onCommand:extension.generateCssTreeNewlyOpened",
-    "onCommand:extension.generateMockData",
     "onLanguage:html",
     "onLanguage:vue",
     "onLanguage:css",
@@ -35,9 +39,36 @@
     "onLanguage:scss"
   ],
   "main": "./out/extension.js",
-  "icon": "./assets/bx.png",
+  "icon": "assets/bx.png",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "toolbox-container",
+          "title": "前端百宝箱",
+          "icon": "./assets/bxtb.png"
+        }
+      ]
+    },
+    "views": {
+      "toolbox-container": [
+        {
+          "icon": "./assets/bxtb.png",
+          "type": "webview",
+          "id": "toolbox-webview",
+          "name": "工具箱"
+        }
+      ]
+    },
     "commands": [
+      {
+        "command": "extension.findLookModule",
+        "title": "路径追踪（新）"
+      },
+      {
+        "command": "extension.generateMockDataAi",
+        "title": "根据接口文档生成Mock数据"
+      },
       {
         "command": "extension.generateCssTree",
         "title": "快速生成css结构(新开窗口)"
@@ -47,12 +78,124 @@
         "title": "快速生成css结构(当前页面)"
       },
       {
-        "command": "extension.generateMockData",
-        "title": "根据接口文档格式生成Mock数据（多层级不支持）"
+        "command": "extension.interfaceDefinition",
+        "title": "生成dubbo接口定义"
       },
       {
-        "command": "extension.interfaceDefinition",
-        "title": "生成dubbo接口定义(新)"
+        "command": "extension.interfaceDefinitionFromArtifact",
+        "title": "通过生成物批量生成dubbo接口定义"
+      },
+      {
+        "command": "extension.addClassDefinition",
+        "title": "AI生成class名称"
+      },
+      {
+        "command": "extension.jsonToTs",
+        "title": "JSON转TypeScript类型"
+      },
+      {
+        "command": "extension.cssUnitConvert",
+        "title": "CSS单位批量转换"
+      },
+      {
+        "command": "extension.colorConvert",
+        "title": "颜色格式转换"
+      },
+      {
+        "command": "extension.timestampConvert",
+        "title": "时间戳/日期转换"
+      },
+      {
+        "command": "extension.encodeDecode",
+        "title": "编码/解码转换"
+      },
+      {
+        "command": "extension.optimizeSvg",
+        "title": "SVG优化压缩"
+      },
+      {
+        "command": "extension.regexTester",
+        "title": "正则表达式测试"
+      },
+      {
+        "command": "extension.saveSnippet",
+        "title": "保存代码片段"
+      },
+      {
+        "command": "extension.openSnippetManager",
+        "title": "管理代码片段"
+      },
+      {
+        "command": "extension.placeholderImage",
+        "title": "插入占位图片"
+      },
+      {
+        "command": "extension.insertConsoleLog",
+        "title": "插入console.log"
+      },
+      {
+        "command": "extension.removeAllConsoleLogs",
+        "title": "移除所有console.log"
+      },
+      {
+        "command": "extension.figmaToCode",
+        "title": "Figma链接转前端代码"
+      },
+      {
+        "command": "extension.checkA11y",
+        "title": "HTML无障碍(a11y)检查"
+      },
+      {
+        "command": "extension.jsonPathQuery",
+        "title": "JSON Path查询器"
+      },
+      {
+        "command": "extension.generateApiCode",
+        "title": "API请求代码生成"
+      },
+      {
+        "command": "extension.compareCodeDiff",
+        "title": "代码差异对比（AI）"
+      },
+      {
+        "command": "extension.analyzeImages",
+        "title": "图片资源分析"
+      },
+      {
+        "command": "extension.detectCssRedundancy",
+        "title": "CSS冗余检测"
+      },
+      {
+        "command": "extension.commentAllConsoleLogs",
+        "title": "注释所有console"
+      },
+      {
+        "command": "extension.highlightConsoleLogs",
+        "title": "高亮所有console"
+      },
+      {
+        "command": "extension.toggleConsoleLogs",
+        "title": "切换console注释状态"
+      },
+      {
+        "command": "extension.exportSnippets",
+        "title": "导出代码片段"
+      },
+      {
+        "command": "extension.importSnippets",
+        "title": "导入代码片段"
+      },
+      {
+        "command": "extension.aiRenameVariable",
+        "title": "AI变量重命名(中英文)"
+      },
+      {
+        "command": "extension.figmaExtractTokens",
+        "title": "Figma设计令牌提取"
+      },
+      {
+        "command": "extension.listChineseSnippets",
+        "title": "中文代码片段列表"
       }
     ],
     "menus": {
@@ -68,43 +211,132 @@
           "when": "editorLangId == js || editorLangId == vue || editorLangId == html || editorLangId == javascript || editorLangId == javascriptreact"
         },
         {
-          "command": "extension.generateMockData",
+          "command": "extension.addClassDefinition",
+          "group": "navigation",
+          "when": "editorLangId == html || editorLangId == vue || editorLangId == xhtml"
+        },
+        {
+          "command": "extension.findLookModule",
           "group": "navigation",
           "when": "editorLangId == js || editorLangId == vue || editorLangId == javascript || editorLangId == javascriptreact"
         },
         {
-          "command": "extension.interfaceDefinition",
+          "command": "extension.cssUnitConvert",
           "group": "navigation",
-          "when": "editorLangId == js || editorLangId == vue || editorLangId == javascript || editorLangId == javascriptreact"
+          "when": "editorLangId == css || editorLangId == less || editorLangId == scss || editorLangId == vue || editorLangId == html"
+        },
+        {
+          "command": "extension.colorConvert",
+          "group": "navigation",
+          "when": "editorLangId == css || editorLangId == less || editorLangId == scss || editorLangId == vue || editorLangId == html || editorLangId == javascript"
+        },
+        {
+          "command": "extension.encodeDecode",
+          "group": "navigation",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "extension.optimizeSvg",
+          "group": "navigation",
+          "when": "editorLangId == html || editorLangId == xml || editorLangId == svg"
+        },
+        {
+          "command": "extension.saveSnippet",
+          "group": "navigation",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "extension.placeholderImage",
+          "group": "navigation",
+          "when": "editorLangId == html || editorLangId == vue || editorLangId == javascriptreact || editorLangId == typescriptreact"
+        },
+        {
+          "command": "extension.insertConsoleLog",
+          "group": "navigation",
+          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == vue"
+        },
+        {
+          "command": "extension.removeAllConsoleLogs",
+          "group": "navigation",
+          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == vue"
+        },
+        {
+          "command": "extension.compareCodeDiff",
+          "group": "navigation",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "extension.detectCssRedundancy",
+          "group": "navigation",
+          "when": "editorLangId == css || editorLangId == less || editorLangId == scss || editorLangId == vue"
+        },
+        {
+          "command": "extension.commentAllConsoleLogs",
+          "group": "navigation",
+          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == vue"
+        },
+        {
+          "command": "extension.toggleConsoleLogs",
+          "group": "navigation",
+          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == vue"
+        },
+        {
+          "command": "extension.aiRenameVariable",
+          "group": "navigation",
+          "when": "editorTextFocus"
         }
       ]
     },
     "languages": [
       {
         "id": "css",
-        "aliases": ["CSS", "css"],
-        "extensions": [".css"]
+        "aliases": [
+          "CSS",
+          "css"
+        ],
+        "extensions": [
+          ".css"
+        ]
       },
       {
         "id": "less",
-        "aliases": ["LESS", "less"],
-        "extensions": [".less"]
+        "aliases": [
+          "LESS",
+          "less"
+        ],
+        "extensions": [
+          ".less"
+        ]
       },
       {
         "id": "scss",
-        "aliases": ["SCSS", "scss"],
-        "extensions": [".scss"]
+        "aliases": [
+          "SCSS",
+          "scss"
+        ],
+        "extensions": [
+          ".scss"
+        ]
       }
     ],
     "configuration": {
       "type": "object",
-      "title": "生成CSS Fast establish配置",
+      "title": "前端百宝箱配置",
       "properties": {
         "generateCssTree.cssFlavor": {
           "type": "string",
           "default": "sass",
-          "description": "CSS flavor",
-          "enum": ["css", "less", "scss"]
+          "description": "CSS 类型",
+          "enum": [
+            "css",
+            "less",
+            "scss"
+          ]
+        },
+        "generateCssTree.interiorTest": {
+          "type": "string",
+          "default": "",
+          "description": "内部测试码(可提前体验新功能)"
         },
         "generateCssTree.enableHover": {
           "type": "boolean",
@@ -114,27 +346,125 @@
         "generateCssTree.enableGoToDefinition": {
           "type": "boolean",
           "default": true,
-          "description": "启用CSS类的“转到定义”"
+          "description": "启用CSS类的转到定义"
+        },
+        "generateCssTree.remBase": {
+          "type": "number",
+          "default": 16,
+          "description": "px转rem的基准值（root font-size）"
+        },
+        "generateCssTree.vwDesignWidth": {
+          "type": "number",
+          "default": 375,
+          "description": "px转vw的设计稿宽度"
+        },
+        "generateCssTree.aiApiEndpoint": {
+          "type": "string",
+          "default": "https://open.bigmodel.cn/api/coding/paas/v4",
+          "description": "AI API端点地址（OpenAI协议兼容）"
+        },
+        "generateCssTree.aiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "AI API密钥"
+        },
+        "generateCssTree.aiModel": {
+          "type": "string",
+          "default": "GLM-4.7",
+          "description": "AI模型名称"
+        },
+        "generateCssTree.figmaToken": {
+          "type": "string",
+          "default": "",
+          "description": "Figma 个人令牌 Token"
+        },
+        "generateCssTree.designOutputFormat": {
+          "type": "string",
+          "default": "vue",
+          "description": "设计转代码的输出格式",
+          "enum": [
+            "html",
+            "vue",
+            "react",
+            "vue3",
+            "tailwind"
+          ]
+        },
+        "generateCssTree.designAutoFix": {
+          "type": "boolean",
+          "default": true,
+          "description": "设计转代码完成后自动检测并修复代码问题"
+        },
+        "generateCssTree.largeImageThreshold": {
+          "type": "number",
+          "default": 512000,
+          "description": "大图检测阈值（字节），默认 500KB"
+        },
+        "generateCssTree.figmaMinRequestInterval": {
+          "type": "number",
+          "default": 10000,
+          "description": "Figma API 最小请求间隔（毫秒），默认 10000ms (10秒)。减小此值可能提高速度但会增加被限流风险，增大此值可降低限流风险"
+        },
+        "generateCssTree.namingConvention": {
+          "type": "string",
+          "default": "custom",
+          "description": "AI生成class名称的命名规范",
+          "enum": [
+            "custom",
+            "bem",
+            "cssModules",
+            "tailwind"
+          ],
+          "enumDescriptions": [
+            "自定义（由AI自由决定）",
+            "BEM规范 (block__element--modifier)",
+            "CSS Modules (camelCase)",
+            "Tailwind工具类（推荐使用工具类而非自定义类名）"
+          ]
+        },
+        "generateCssTree.autoTranslateVariable": {
+          "type": "boolean",
+          "default": true,
+          "description": "输入 const/let/var 后自动将中文变量名翻译为英文驼峰命名"
+        },
+        "generateCssTree.autoTranslateUseAI": {
+          "type": "boolean",
+          "default": false,
+          "description": "中文变量名翻译使用AI（需要配置AI API Key），默认使用本地字典"
         }
       }
     }
   },
   "scripts": {
-    "vscode:prepublish": "yarn run compile",
+    "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
+    "compile:webview": "vite build",
     "watch": "tsc -watch -p ./",
+    "watch:webview": "vite build --watch --mode development",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "yarn run compile && node ./node_modules/vscode/bin/test"
+    "test": "yarn run compile && node ./node_modules/vscode/bin/test",
+    "package": "yarn run compile && yarn run compile:webview && vsce package"
   },
   "devDependencies": {
-    "typescript": "^3.3.1",
-    "vscode": "^1.1.28",
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^16.11.7",
+    "@types/node-fetch": "^3.0.3",
+    "@types/vscode": "^1.74.0",
+    "@vitejs/plugin-vue2": "^2.3.1",
+    "@vue/tsconfig": "^0.4.0",
     "tslint": "^5.12.1",
-    "@types/node": "^8.10.25",
-    "@types/mocha": "^2.2.42"
+    "typescript": "^4.9.5",
+    "vite": "^4.5.0",
+    "vscode": "^1.1.37",
+    "vue": "^2.7.14",
+    "vue-class-component": "^7.2.6",
+    "vue-property-decorator": "^9.1.2",
+    "vue-template-compiler": "^2.7.14",
+    "vue-tsc": "^1.8.27"
   },
   "dependencies": {
-    "document-tree": "^1.0.1"
+    "document-tree": "^1.0.1",
+    "node-fetch": "^2.6.7"
   },
   "repository": {
     "type": "git",
