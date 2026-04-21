@@ -50,22 +50,18 @@ export class DesignToCodePanel {
 	}
 
 	public static createOrShow(extensionUri: vscode.Uri, generatedCode: string, language: string) {
-		const column = vscode.window.activeTextEditor
-			? vscode.window.activeTextEditor.viewColumn
-			: undefined;
-
 		if (DesignToCodePanel.currentPanel) {
 			DesignToCodePanel.currentPanel._generatedCode = generatedCode;
 			DesignToCodePanel.currentPanel._panel.webview.html =
 				DesignToCodePanel.currentPanel._getHtmlForWebview(generatedCode, language);
-			DesignToCodePanel.currentPanel._panel.reveal(column);
+			DesignToCodePanel.currentPanel._panel.reveal(undefined, true);
 			return;
 		}
 
 		const panel = vscode.window.createWebviewPanel(
 			'designToCode',
 			'设计转代码结果',
-			column || vscode.ViewColumn.One,
+			{ viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
 			{ enableScripts: true }
 		);
 

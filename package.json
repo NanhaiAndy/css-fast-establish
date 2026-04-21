@@ -2,7 +2,7 @@
   "name": "css-fast-establish",
   "displayName": "frontend-toolkit-前端百宝箱",
   "description": "Empower your daily frontend workflow with built-in utilities — boost productivity and lighten the workload.通过内置小工具，辅助前端日常开发，提升工作效率，减轻负担",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "publisher": "NanhaiAndy",
   "engines": {
     "vscode": "^1.74.0"
@@ -196,94 +196,166 @@
       {
         "command": "extension.listChineseSnippets",
         "title": "中文代码片段列表"
+      },
+      {
+        "command": "extension.wrapWithTag",
+        "title": "快速包裹标签"
+      },
+      {
+        "command": "extension.extractCssVariable",
+        "title": "提取CSS变量"
+      },
+      {
+        "command": "extension.layoutVisualizer",
+        "title": "Flexbox/Grid布局可视化"
+      },
+      {
+        "command": "extension.detectDeadCode",
+        "title": "死代码检测"
+      },
+      {
+        "command": "extension.startStaticServer",
+        "title": "启动静态服务器"
+      },
+      {
+        "command": "extension.stopStaticServer",
+        "title": "停止静态服务器"
+      },
+      {
+        "command": "extension.todoBoard",
+        "title": "TODO看板"
+      },
+      {
+        "command": "extension.clipboardHistory",
+        "title": "剪贴板历史"
+      },
+      {
+        "command": "extension.clearClipboardHistory",
+        "title": "清空剪贴板历史"
+      },
+      {
+        "command": "extension.envManager",
+        "title": "环境变量管理"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "frontend-toolkit",
+        "label": "前端百宝箱"
       }
     ],
     "menus": {
       "editor/context": [
         {
+          "submenu": "frontend-toolkit",
+          "group": "navigation@5"
+        }
+      ],
+      "frontend-toolkit": [
+        {
           "command": "extension.generateCssTree",
-          "group": "navigation",
+          "group": "1_css@1",
           "when": "editorLangId == js || editorLangId == vue || editorLangId == html || editorLangId == javascript || editorLangId == javascriptreact"
         },
         {
           "command": "extension.generateCssTreeNewlyOpened",
-          "group": "navigation",
+          "group": "1_css@2",
           "when": "editorLangId == js || editorLangId == vue || editorLangId == html || editorLangId == javascript || editorLangId == javascriptreact"
         },
         {
           "command": "extension.addClassDefinition",
-          "group": "navigation",
+          "group": "1_css@3",
           "when": "editorLangId == html || editorLangId == vue || editorLangId == xhtml"
         },
         {
-          "command": "extension.findLookModule",
-          "group": "navigation",
-          "when": "editorLangId == js || editorLangId == vue || editorLangId == javascript || editorLangId == javascriptreact"
-        },
-        {
           "command": "extension.cssUnitConvert",
-          "group": "navigation",
+          "group": "1_css@4",
           "when": "editorLangId == css || editorLangId == less || editorLangId == scss || editorLangId == vue || editorLangId == html"
         },
         {
           "command": "extension.colorConvert",
-          "group": "navigation",
+          "group": "1_css@5",
           "when": "editorLangId == css || editorLangId == less || editorLangId == scss || editorLangId == vue || editorLangId == html || editorLangId == javascript"
         },
         {
-          "command": "extension.encodeDecode",
-          "group": "navigation",
-          "when": "editorTextFocus"
+          "command": "extension.extractCssVariable",
+          "group": "1_css@6",
+          "when": "editorLangId == css || editorLangId == less || editorLangId == scss || editorLangId == vue"
+        },
+        {
+          "command": "extension.detectCssRedundancy",
+          "group": "1_css@7",
+          "when": "editorLangId == css || editorLangId == less || editorLangId == scss || editorLangId == vue"
         },
         {
           "command": "extension.optimizeSvg",
-          "group": "navigation",
+          "group": "2_code@1",
           "when": "editorLangId == html || editorLangId == xml || editorLangId == svg"
         },
         {
+          "command": "extension.encodeDecode",
+          "group": "2_code@2",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "extension.wrapWithTag",
+          "group": "2_code@3",
+          "when": "editorHasSelection && (editorLangId == html || editorLangId == vue || editorLangId == javascriptreact || editorLangId == typescriptreact)"
+        },
+        {
           "command": "extension.saveSnippet",
-          "group": "navigation",
+          "group": "2_code@4",
           "when": "editorHasSelection"
         },
         {
+          "command": "extension.compareCodeDiff",
+          "group": "2_code@5",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "extension.detectDeadCode",
+          "group": "2_code@6",
+          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == vue || editorLangId == javascriptreact || editorLangId == typescriptreact"
+        },
+        {
+          "command": "extension.aiRenameVariable",
+          "group": "2_code@7",
+          "when": "editorTextFocus"
+        },
+        {
+          "command": "extension.findLookModule",
+          "group": "3_nav@1",
+          "when": "editorLangId == js || editorLangId == vue || editorLangId == javascript || editorLangId == javascriptreact"
+        },
+        {
           "command": "extension.placeholderImage",
-          "group": "navigation",
+          "group": "3_nav@2",
           "when": "editorLangId == html || editorLangId == vue || editorLangId == javascriptreact || editorLangId == typescriptreact"
         },
         {
+          "command": "extension.clipboardHistory",
+          "group": "3_nav@3",
+          "when": "editorTextFocus"
+        },
+        {
           "command": "extension.insertConsoleLog",
-          "group": "navigation",
+          "group": "4_console@1",
           "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == vue"
         },
         {
           "command": "extension.removeAllConsoleLogs",
-          "group": "navigation",
+          "group": "4_console@2",
           "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == vue"
         },
         {
-          "command": "extension.compareCodeDiff",
-          "group": "navigation",
-          "when": "editorHasSelection"
-        },
-        {
-          "command": "extension.detectCssRedundancy",
-          "group": "navigation",
-          "when": "editorLangId == css || editorLangId == less || editorLangId == scss || editorLangId == vue"
-        },
-        {
           "command": "extension.commentAllConsoleLogs",
-          "group": "navigation",
+          "group": "4_console@3",
           "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == vue"
         },
         {
           "command": "extension.toggleConsoleLogs",
-          "group": "navigation",
+          "group": "4_console@4",
           "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == vue"
-        },
-        {
-          "command": "extension.aiRenameVariable",
-          "group": "navigation",
-          "when": "editorTextFocus"
         }
       ]
     },

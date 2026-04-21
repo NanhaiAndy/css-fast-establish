@@ -15,19 +15,15 @@ export class RegexPanel {
   }
 
   public static createOrShow(extensionUri: vscode.Uri) {
-    const column = vscode.window.activeTextEditor
-      ? vscode.window.activeTextEditor.viewColumn
-      : undefined;
-
     if (RegexPanel.currentPanel) {
-      RegexPanel.currentPanel._panel.reveal(column);
+      RegexPanel.currentPanel._panel.reveal(undefined, true);
       return;
     }
 
     const panel = vscode.window.createWebviewPanel(
       'regexTester',
       '正则可视化测试',
-      column || vscode.ViewColumn.One,
+      { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
       { enableScripts: true }
     );
 

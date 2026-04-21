@@ -35,19 +35,15 @@ export class ImageAnalysisPanel {
   }
 
   public static createOrShow(extensionUri: vscode.Uri, data: AnalysisData) {
-    const column = vscode.window.activeTextEditor
-      ? vscode.window.activeTextEditor.viewColumn
-      : undefined;
-
     if (ImageAnalysisPanel.currentPanel) {
-      ImageAnalysisPanel.currentPanel._panel.reveal(column);
+      ImageAnalysisPanel.currentPanel._panel.reveal(undefined, true);
       return;
     }
 
     const panel = vscode.window.createWebviewPanel(
       'imageAnalysis',
       '图片资源分析',
-      column || vscode.ViewColumn.One,
+      { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
       { enableScripts: true }
     );
 

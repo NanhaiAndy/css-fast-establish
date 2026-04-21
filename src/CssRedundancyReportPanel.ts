@@ -326,19 +326,15 @@ export class CssRedundancyReportPanel {
   }
 
   public static createOrShow(extensionUri: vscode.Uri, data: RedundancyData, scope: 'file' | 'workspace' = 'workspace') {
-    const column = vscode.window.activeTextEditor
-      ? vscode.window.activeTextEditor.viewColumn
-      : undefined;
-
     if (CssRedundancyReportPanel.currentPanel) {
-      CssRedundancyReportPanel.currentPanel._panel.reveal(column);
+      CssRedundancyReportPanel.currentPanel._panel.reveal(undefined, true);
       return;
     }
 
     const panel = vscode.window.createWebviewPanel(
       'cssRedundancy',
       'CSS 冗余检测报告',
-      column || vscode.ViewColumn.One,
+      { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
       { enableScripts: true }
     );
 

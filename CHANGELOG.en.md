@@ -6,6 +6,11 @@ This file records all important changes to the "Frontend Treasure Chest" extensi
 The format follows the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) specification,
 and version numbers adopt the [Semantic Versioning](https://semver.org/) standard.
 
+## [2.0.1] - 2026-4-21
+### Improved
+- **Context Menu Cleanup** — All tool entries consolidated into a "Frontend Treasure Chest ▸" submenu, organized into 4 groups (CSS/Code/Navigation/Console), reducing right-click menu from 20+ items to 1 entry
+- **Webview Panel Opening** — All standalone panels (Regex Tester, JSON Path, Design to Code, Image Analysis, CSS Redundancy, Layout Visualizer, TODO Board, Env Manager) now open as a right-side split editor (`ViewColumn.Beside`) without stealing focus
+
 ## [2.0.0] - 2026-4-20
 ### Added
 - **Code Snippet Management Enhancements** — Snippets now support tag-based categorization (comma-separated input), template variables, and usage frequency tracking (sorted by usage count in descending order, with most-used items appearing first)

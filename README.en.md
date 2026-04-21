@@ -13,6 +13,9 @@ A collection of auxiliary tools for frontend development, integrating multiple f
 - Click an attribute value to quickly navigate to its definition or assignment location
 - AI-powered semantic class naming (supports BEM / CSS Modules / Tailwind conventions)
 - CSS redundancy detection report with select all / invert selection / batch delete for unused classes
+- **CSS Compatibility Hover** — Hover CSS property names to see browser compatibility and vendor prefix suggestions
+- **CSS Variable Extraction** — Scan hardcoded colors/sizes and extract as `:root` CSS variables
+- **Quick Wrap Tag** — Select content, enter tag name (supports attributes), auto-wrap
 
 ### API & Data Tools
 - Generate dubbo interface definitions from API names
@@ -47,6 +50,16 @@ A collection of auxiliary tools for frontend development, integrating multiple f
 - **Chinese Code Snippets** — Type Chinese keywords to auto-expand code snippets (e.g., type `判断` → `if (condition) { }`), covering conditionals, loops, functions, requests/API, array operations, string handling, DOM operations, storage, regex, testing, Vue/React templates across 16 categories with 150+ keywords
 - **Snippet Import/Export** — Supports export to VS Code `.code-snippets` format and import (auto-deduplication and merging)
 - **Figma Design Token Extraction** — Extract colors, fonts, border radii, spacing, and other design tokens from Figma files, output as CSS Variables / SCSS Variables / Tailwind Config
+
+### New Tools (v2.0.1)
+- **Flexbox/Grid Layout Visualizer** — Real-time parameter adjustment and layout preview, one-click copy CSS code
+- **Dead Code Detection** — Detect unused functions and variables in the current file
+- **Git Blame Inline Hint** — Hover code lines to see last commit info
+- **Quick Static Server** — One-click local HTTP static server
+- **npm Version Query** — Hover package names in package.json to see latest version
+- **TODO Board** — Scan workspace TODO/FIXME/HACK comments, display in tag-based kanban columns
+- **Clipboard History** — Auto-record last 50 clipboard entries, quick paste
+- **Environment Variable Manager** — Visual management of .env files, multi-environment support
 
 ### Sidebar Panel
 - View current project information (branch, commit history, contributors, etc.)
@@ -216,6 +229,77 @@ A collection of auxiliary tools for frontend development, integrating multiple f
 | Testing | 测试套件 → `describe`, 测试用例 → `test`, 期望 → `expect`, 模拟函数 |
 | Vue Templates | 条件渲染 → `v-if`, 列表渲染 → `v-for`, 双向绑定 → `v-model`, 插槽, Props |
 | React Templates | 组件, 状态 → `useState`, 效应 → `useEffect`, 条件渲染React |
+
+### Quick Wrap Tag
+
+1. Select the content to wrap
+2. Right-click → Frontend Treasure Chest → Quick Wrap Tag
+3. Enter a tag name (e.g., `div class="box"` or `span`)
+4. Automatically wraps with `<tag>selected content</tag>`
+
+### CSS Compatibility Hover
+
+1. Open a CSS/LESS/SCSS/Vue file
+2. Hover over a CSS property name (e.g., `flex`, `gap`, `backdrop-filter`)
+3. Browser compatibility table and vendor prefix suggestions are displayed automatically
+
+### CSS Variable Extraction
+
+1. Open a CSS/Vue file, right-click → Frontend Treasure Chest → Extract CSS Variable
+2. Select hardcoded colors or font sizes to extract (multi-select supported)
+3. Enter a variable name prefix (or leave empty for auto-generation)
+4. `:root` variables are generated at the top and all references are replaced
+
+### Flexbox/Grid Layout Visualizer
+
+1. Open "Flexbox/Grid Layout Visualizer" from the sidebar or command palette
+2. Switch between Flexbox / Grid tabs
+3. Adjust direction, alignment, gap, and other parameters for real-time layout preview
+4. Click "Copy" to copy the generated CSS code
+
+### Dead Code Detection
+
+1. Open a JS/TS/Vue file, right-click → Frontend Treasure Chest → Dead Code Detection
+2. View detected unused functions/variables list
+3. Click a list item to navigate to the code location
+
+### Git Blame Hint
+
+1. In any file, hover over a code line
+2. Last commit's hash, author, date, and message are displayed automatically
+
+### Quick Static Server
+
+1. Open "Start Static Server" from the sidebar or command palette
+2. Enter a port number (default 8080), press Enter
+3. Click "Open Browser" to preview the page
+4. To stop, run the command again and select "Stop Server"
+
+### npm Version Query
+
+1. Open a package.json file
+2. Hover over a dependency package name
+3. Latest version, description, last publish date, and outdated status are displayed
+
+### TODO Board
+
+1. Open "TODO Board" from the sidebar or command palette
+2. Automatically scans all TODO/FIXME/HACK/XXX/NOTE/BUG comments in workspace
+3. Displayed in kanban columns by tag, click entries to navigate to source files
+4. Click "Refresh" to re-scan
+
+### Clipboard History
+
+1. Copy code or text normally (extension auto-records, up to 50 entries)
+2. Right-click → Frontend Treasure Chest → Clipboard History (or use command palette)
+3. Select content from the list to paste at cursor position
+
+### Environment Variable Manager
+
+1. Open "Environment Variable Manager" from the sidebar or command palette
+2. Auto-detects all .env files in the project root
+3. Switch tabs to select the environment file to edit
+4. Edit values and click "Save", or click "+ Add Variable" to create new ones
 
 ![GIF](https://i.postimg.cc/wB3q3vD6/mock.gif)
 

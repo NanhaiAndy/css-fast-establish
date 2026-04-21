@@ -179,6 +179,20 @@ export default class ToolboxList extends Vue {
       title: '路径追踪',
       description: '框选~/或@/前缀路径，鼠标右键执行路径追踪，打开文件',
       disabled: true
+    },
+    {
+      id: 'wrap-tag',
+      icon: '',
+      title: '快速包裹标签',
+      description: '选中内容，输入标签名自动包裹',
+      command: 'extension.wrapWithTag'
+    },
+    {
+      id: 'static-server',
+      icon: '',
+      title: '静态服务器',
+      description: '一键启动本地HTTP静态服务器，方便预览',
+      command: 'extension.startStaticServer'
     }
   ];
 
@@ -234,6 +248,20 @@ export default class ToolboxList extends Vue {
       title: 'SVG优化压缩',
       description: '移除冗余属性，压缩SVG代码',
       command: 'extension.optimizeSvg'
+    },
+    {
+      id: 'css-variable-extract',
+      icon: '',
+      title: 'CSS变量提取',
+      description: '将硬编码颜色/字号提取为CSS变量',
+      command: 'extension.extractCssVariable'
+    },
+    {
+      id: 'css-compat-hover',
+      icon: '',
+      title: 'CSS兼容性提示',
+      description: 'Hover CSS属性自动显示浏览器兼容性',
+      disabled: true
     }
   ];
 
@@ -356,6 +384,55 @@ export default class ToolboxList extends Vue {
       title: '中文代码片段',
       description: '输入中文关键词自动展开代码片段（如"判断"→if语句）',
       command: 'extension.listChineseSnippets'
+    },
+    {
+      id: 'layout-visualizer',
+      icon: '',
+      title: '布局可视化',
+      description: 'Flexbox/Grid布局可视化编辑器',
+      command: 'extension.layoutVisualizer'
+    },
+    {
+      id: 'dead-code-detect',
+      icon: '',
+      title: '死代码检测',
+      description: '检测文件中未使用的函数和变量',
+      command: 'extension.detectDeadCode'
+    },
+    {
+      id: 'todo-board',
+      icon: '',
+      title: 'TODO看板',
+      description: '扫描工作区TODO/FIXME/HACK注释，看板展示',
+      command: 'extension.todoBoard'
+    },
+    {
+      id: 'clipboard-history',
+      icon: '',
+      title: '剪贴板历史',
+      description: '查看最近复制的内容，快速粘贴',
+      command: 'extension.clipboardHistory'
+    },
+    {
+      id: 'env-manager',
+      icon: '',
+      title: '环境变量管理',
+      description: '可视化管理.env文件，支持多环境切换',
+      command: 'extension.envManager'
+    },
+    {
+      id: 'git-blame-hover',
+      icon: '',
+      title: 'Git Blame提示',
+      description: 'Hover代码行显示最后修改的commit信息',
+      disabled: true
+    },
+    {
+      id: 'npm-version-hover',
+      icon: '',
+      title: 'npm版本查询',
+      description: 'Hover package.json中包名显示最新版本',
+      disabled: true
     }
   ];
 
@@ -427,7 +504,18 @@ export default class ToolboxList extends Vue {
       'chinese-snippet': '<path d="M4 3H14V7H4Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 9H10M4 12H8M4 15H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="14" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M13 11.5V12.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>',
       'figma-token-extract': '<path d="M6 2C4.34 2 3 3.34 3 5C3 6.66 4.34 8 6 8C4.34 8 3 9.34 3 11C3 12.66 4.34 14 6 14C7.66 14 9 12.66 9 11V5C9 3.34 7.66 2 6 2ZM6 8H12C13.66 8 15 6.66 15 5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5M9 8V11C9 12.66 10.34 14 12 14C13.66 14 15 12.66 15 11C15 9.34 13.66 8 12 8" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="11" r="1" fill="currentColor"/>',
       'api-code-gen': '<path d="M3 6H10M3 9H12M3 12H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13 5L15 7L13 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 9V14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
-      'code-diff': '<path d="M3 6L7 3L11 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M15 12L11 15L7 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 15V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
+      'code-diff': '<path d="M3 6L7 3L11 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M15 12L11 15L7 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 15V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+      'wrap-tag': '<path d="M3 5L6 9L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5L12 9L15 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 9H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+      'static-server': '<circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M9 6V9H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 14L3 16M12 14L15 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+      'css-variable-extract': '<path d="M3 5H7M3 9H11M3 13H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11 5H15M11 13H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 3L11 5L12 7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 11L11 13L12 15" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>',
+      'css-compat-hover': '<rect x="3" y="4" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 7H12M6 9H10M6 11H8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="14" cy="3" r="1.5" fill="#70ad47"/>',
+      'layout-visualizer': '<rect x="3" y="3" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="5" y="5" width="3" height="3" rx="0.5" fill="currentColor" opacity="0.5"/><rect x="10" y="5" width="3" height="3" rx="0.5" fill="currentColor" opacity="0.5"/><rect x="5" y="10" width="3" height="3" rx="0.5" fill="currentColor" opacity="0.3"/><rect x="10" y="10" width="3" height="3" rx="0.5" fill="currentColor" opacity="0.3"/>',
+      'dead-code-detect': '<path d="M4 4H14V14H4Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M6 7H12M6 10H10M6 13H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13 13L15 15M15 13L13 15" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>',
+      'todo-board': '<rect x="3" y="4" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="7" y="4" width="4" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="11" y="4" width="4" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M5 7L6 8L8 5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>',
+      'clipboard-history': '<path d="M5 3H13V15H5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 7H11M7 10H10M7 13H9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M13 5H15V13H13" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="15" cy="9" r="2" fill="currentColor" opacity="0.3"/>',
+      'env-manager': '<path d="M9 2L3 5V11L9 14L15 11V5L9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 5L9 8L15 5M9 8V14" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M6 7V10M12 7V10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>',
+      'git-blame-hover': '<circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M9 6V9L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 3L7.5 5L6 7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5" cy="5" r="1" fill="currentColor"/>',
+      'npm-version-hover': '<path d="M3 3H15V15H3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M6 6L8 8L6 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 12H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 3H15V6H3Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>'
     };
     return icons[id] || '<rect x="4" y="4" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>';
   }

@@ -12,19 +12,15 @@ export class JsonPathPanel {
   }
 
   public static createOrShow(extensionUri: vscode.Uri) {
-    const column = vscode.window.activeTextEditor
-      ? vscode.window.activeTextEditor.viewColumn
-      : undefined;
-
     if (JsonPathPanel.currentPanel) {
-      JsonPathPanel.currentPanel._panel.reveal(column);
+      JsonPathPanel.currentPanel._panel.reveal(undefined, true);
       return;
     }
 
     const panel = vscode.window.createWebviewPanel(
       'jsonPathQuery',
       'JSON Path 查询器',
-      column || vscode.ViewColumn.One,
+      { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
       { enableScripts: true }
     );
 
